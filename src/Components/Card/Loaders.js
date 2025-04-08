@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function getCards(boardId) {
+export async function Loaders(boardId) {
   const APIKey = import.meta.env.VITE_APIkey;
   const APIToken = import.meta.env.VITE_APItoken;
 
@@ -41,7 +41,7 @@ export async function getCards(boardId) {
     }
   }
 
-  async function getCards() {
+  async function loaders() {
     try {
       const response = await axios.get(
         `https://api.trello.com/1/boards/${boardId}/cards`,
@@ -59,7 +59,7 @@ export async function getCards(boardId) {
     }
   }
 
-  const [board, lists, cards] = await Promise.all([getBoard(), getLists(), getCards()]);
+  const [board, lists, cards] = await Promise.all([getBoard(), getLists(), loaders()]);
 
   return {
     board: board,

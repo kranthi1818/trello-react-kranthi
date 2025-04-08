@@ -2,7 +2,7 @@
 import { useEffect, useReducer } from 'react'
 import { useParams } from 'react-router-dom'
 import AddList from '../AddList/AddList';
-import { getCards } from '../Card/getCards';
+import {Loaders} from '../Card/Loaders'
 import CardList from '../Card/CardList';
 import Card from '../Card/Card'
 
@@ -40,7 +40,7 @@ function List() {
     async function fetchBoard() {
       try {
 
-        const { board, lists, cards } = await getCards(boardId)
+        const { board, lists, cards } = await Loaders(boardId)
 
         dispatch({ type: 'SET_BOARD', payload: board })
 

@@ -1,6 +1,6 @@
 
 
-import { Box, Typography,LinearProgress,Button } from "@mui/material"
+import { Box, Typography, LinearProgress, Button } from "@mui/material"
 import CheckItem from "../Checkitems/CheckItem"
 
 function CheckList({ checklists,
@@ -20,35 +20,75 @@ function CheckList({ checklists,
     }
 
     return (
-        <Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {checklists.map((item) => (
-                // checklist name delete icon
+                <Box
+                    key={item.id}
+                    sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        backgroundColor: '#2c333a',
+                        boxShadow: 3,
+                    }}
+                >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography
+                            sx={{
+                                fontSize: '1.2rem',
+                                fontWeight: '600',
+                                color: '#ffffff',
+                            }}
+                        >
+                            {item.name}
+                        </Typography>
 
-                <Box key={item.id}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
-                        <Typography sx={{ margin: 1, fontSize: '1.4rem', fontWeight: 'bold' }}>{item.name}</Typography>
-
-                        <Button onClick={() => { deleteChecklist(item.id) }}
-                            sx={{ cursor: 'pointer', "&:hover": { backgroundColor: '#b71c1c' } }}
-                            variant='contained'>Delete</Button>
+                        <Button
+                            onClick={() => deleteChecklist(item.id)}
+                            sx={{
+                                backgroundColor: '#d32f2f',
+                                textTransform: 'none',
+                                fontSize: '0.75rem',
+                                px: 2,
+                                py: 0.5,
+                                '&:hover': {
+                                    backgroundColor: '#b71c1c',
+                                },
+                            }}
+                            variant="contained"
+                        >
+                            Delete
+                        </Button>
                     </Box>
 
-                    {/* progress Bar */}
-                    <Box>
-                        <Typography marginLeft='1rem' variant="caption"> {calculateProgress(checkItems[item.id])}%</Typography>
+                    {/* Progress Bar */}
+                    <Box sx={{ mt: 2 }}>
+                        <Typography
+                            variant="caption"
+                            sx={{ color: '#cccccc', mb: 0.5, ml: 0.2 }}
+                        >
+                            {calculateProgress(checkItems[item.id])}%
+                        </Typography>
                         <LinearProgress
                             variant="determinate"
                             value={calculateProgress(checkItems[item.id])}
-
-                            sx={{ bgcolor: "gray", height: 5, my: 1 }}
+                            sx={{
+                                height: 6,
+                                borderRadius: 1,
+                                backgroundColor: '#424242',
+                                '& .MuiLinearProgress-bar': {
+                                    backgroundColor: '#03dac5',
+                                },
+                            }}
                         />
                     </Box>
-                    <Box>
-                        <CheckItem 
-                        dispatch={dispatch}
-                        isCardId={isCard.id} 
-                        checkItems={checkItems[item.id]} 
-                        checklistId={item.id} />
+                    
+                    <Box sx={{ mt: 2 }}>
+                        <CheckItem
+                            dispatch={dispatch}
+                            isCardId={isCard.id}
+                            checkItems={checkItems[item.id]}
+                            checklistId={item.id}
+                        />
                     </Box>
                 </Box>
             ))}

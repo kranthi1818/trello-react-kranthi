@@ -89,7 +89,7 @@ function Home() {
 
                     {state.name.map((items) => (
 
-                        <Board key={items.id} items={items} sx={{ minWidth: '25rem', bgcolor: '#333C43' }} name={items.name} id={items.id} />
+                        <Board  prefs={items.prefs} key={items.id} items={items} sx={{ minWidth: '25rem'}} name={items.name} id={items.id} />
                     ))}
 
                     <Box
