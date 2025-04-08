@@ -4,7 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from 'react';
 
-function AddList({ isLoading, dispatcher, postLists }) {
+function AddList({ isLoading, dispatch, postLists }) {
 
     const [inputValue, setInputValue] = useState('')
 
@@ -12,11 +12,11 @@ function AddList({ isLoading, dispatcher, postLists }) {
         if (!inputValue.trim()) return
 
         postLists(inputValue)
-        dispatcher({type:'SET_ISLOADING',payload:false})
+        dispatch({type:'SET_ISLOADING',payload:false})
         setInputValue('')
     }
     function handleCloseAddList() {
-        dispatcher({ type: 'SET_ISLOADING', payload: false })
+        dispatch({ type: 'SET_ISLOADING', payload: false })
         setInputValue('')
     }
 
@@ -71,7 +71,7 @@ function AddList({ isLoading, dispatcher, postLists }) {
                 </Box>
             ) : (
                 <Box onClick={() => {
-                    dispatcher({ type: 'SET_ISLOADING', payload: true })
+                    dispatch({ type: 'SET_ISLOADING', payload: true })
                 }}
                     sx={{
                         display: "flex",

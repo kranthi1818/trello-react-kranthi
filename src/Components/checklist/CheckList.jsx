@@ -5,7 +5,7 @@ import CheckItem from "../Checkitems/CheckItem"
 
 function CheckList({ checklists,
     checkItems,
-    dispatcher,
+    dispatch,
     isCard,
     deleteChecklist
 }) {
@@ -45,7 +45,7 @@ function CheckList({ checklists,
                     </Box>
                     <Box>
                         <CheckItem 
-                        dispatcher={dispatcher}
+                        dispatch={dispatch}
                         isCardId={isCard.id} 
                         checkItems={checkItems[item.id]} 
                         checklistId={item.id} />

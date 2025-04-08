@@ -4,7 +4,7 @@ import { useState } from 'react';
 import axios from 'axios';
 
 
-function CheckItem({ checkItems, isCardId, checklistId, dispatcher }) {
+function CheckItem({ checkItems, isCardId, checklistId, dispatch }) {
 
     const [checkItemInput, setCheckItemInput] = useState('')
 
@@ -18,7 +18,7 @@ function CheckItem({ checkItems, isCardId, checklistId, dispatcher }) {
             console.log(response.data)
             const newItem = response.data;
 
-            dispatcher({ type: 'ADD_CHECK_ITEM',
+            dispatch({ type: 'ADD_CHECK_ITEM',
                 payload: {
                     checklistId,
                     checkItem: newItem,
@@ -35,7 +35,7 @@ function CheckItem({ checkItems, isCardId, checklistId, dispatcher }) {
         try {
             await axios.delete(`https://api.trello.com/1/cards/${cardId}/checkItem/${checkItemId}?key=${APIKey}&token=${APIToken}`)
 
-            dispatcher({
+            dispatch({
                 type: 'DELETE_CHECK_ITEM',
                 payload: {
                     checklistId,
@@ -56,7 +56,7 @@ function CheckItem({ checkItems, isCardId, checklistId, dispatcher }) {
                 `https://api.trello.com/1/cards/${isCardId}/checkItem/${itemId}?state=${newState}&key=${APIKey}&token=${APIToken}`
             );
     
-            dispatcher({ type: 'TOGGLE_CHECK_ITEM',
+            dispatch({ type: 'TOGGLE_CHECK_ITEM',
                 payload: {
                     checklistId,
                     checkItemId: itemId,

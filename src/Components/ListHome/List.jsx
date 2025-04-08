@@ -29,7 +29,7 @@ function List() {
     openCardId: null
 
   }
-  const [state, dispatcher] = useReducer(listReducer, initialstate)
+  const [state, dispatch] = useReducer(listReducer, initialstate)
 
   const { board, list, isLoading, openCardId } = state;
 
@@ -53,8 +53,8 @@ function List() {
         }, []);
 
 
-        dispatcher({ type: 'SET_BOARD', payload: board })
-        dispatcher({ type: 'ADD_CARDS_PER_LIST', payload: cardsPerList })
+        dispatch({ type: 'SET_BOARD', payload: board })
+        dispatch({ type: 'ADD_CARDS_PER_LIST', payload: cardsPerList })
 
       } catch (error) {
         console.log(error)
@@ -71,7 +71,7 @@ function List() {
         idBoard: boardId
       });
 
-      dispatcher({ type: 'ADD_LIST', payload: { ...response.data, cards: [] } })
+      dispatch({ type: 'ADD_LIST', payload: { ...response.data, cards: [] } })
 
     } catch (error) {
       console.log(error)
@@ -100,7 +100,7 @@ function List() {
         return listObj;
       });
 
-      dispatcher({ type: 'POST_CARD_IN_LIST', payload: updatedList });
+      dispatch({ type: 'POST_CARD_IN_LIST', payload: updatedList });
 
       return newCard;
     } catch (error) {
@@ -119,7 +119,7 @@ function List() {
         };
       });
 
-      dispatcher({ type: 'DELETE_CARD', payload: updatedCards })
+      dispatch({ type: 'DELETE_CARD', payload: updatedCards })
     } catch (error) {
       console.log(error)
     }
@@ -145,7 +145,7 @@ function List() {
         return listObj;
       });
 
-      dispatcher({ type: 'ARCHIVE_LIST', payload: updatedList })
+      dispatch({ type: 'ARCHIVE_LIST', payload: updatedList })
 
       console.log(response)
     } catch (error) {
@@ -193,16 +193,16 @@ function List() {
                   isOpen={openCardId === item.id}
                   onOpen={() => {
 
-                    dispatcher({ type: 'SET_CARD_ID', payload: item.id })
-                    dispatcher({ type: 'SET_ISLOADING', payload: false })
+                    dispatch({ type: 'SET_CARD_ID', payload: item.id })
+                    dispatch({ type: 'SET_ISLOADING', payload: false })
 
                   }}
-                  onClose={() => dispatcher({ type: 'SET_CARD_ID', payload: null })}
+                  onClose={() => dispatch({ type: 'SET_CARD_ID', payload: null })}
                 />
               </Box>
             ))}
           </Stack>
-          <AddList setOpenCardId={openCardId} isLoading={isLoading} dispatcher={dispatcher} postLists={postLists} />
+          <AddList setOpenCardId={openCardId} isLoading={isLoading} dispatch={dispatch} postLists={postLists} />
         </Box>
       </Box>
     </>

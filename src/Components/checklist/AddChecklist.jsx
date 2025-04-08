@@ -33,7 +33,7 @@ function AddChecklist(
         checkItems: {}
     }
 
-    const [state, dispatcher] = useReducer(addChecklistReducer, initialstate)
+    const [state, dispatch] = useReducer(addChecklistReducer, initialstate)
 
     const { checklists, listInputValue, checkItems } = state
 
@@ -47,14 +47,14 @@ function AddChecklist(
                 const response = await axios.get(`https://api.trello.com/1/cards/${isCard.id}/checklists?key=${APIKey}&token=${APIToken}`)
 
                 const checklistData = response.data;
-                dispatcher({ type: 'SET_CHECKLIST', payload: checklistData })
+                dispatch({ type: 'SET_CHECKLIST', payload: checklistData })
 
                 const itemsGroupedByChecklist = checklistData.reduce((acc, checklist) => {
                     acc[checklist.id] = checklist.checkItems || [];
                     return acc;
                 }, {});
 
-                dispatcher({ type: 'SET_CHECKITEMS', payload: itemsGroupedByChecklist })
+                dispatch({ type: 'SET_CHECKITEMS', payload: itemsGroupedByChecklist })
 
             } catch (error) {
                 console.log(error)
@@ -74,11 +74,11 @@ function AddChecklist(
             const newChecklist = response.data;
 
 
-            dispatcher({ type: 'UPDATE_CHECKLIST', payload: newChecklist })
+            dispatch({ type: 'UPDATE_CHECKLIST', payload: newChecklist })
 
-            dispatcher({ type: 'ADD_CHECKITEM_GROUP', payload: newChecklist.id });
+            dispatch({ type: 'ADD_CHECKITEM_GROUP', payload: newChecklist.id });
 
-            dispatcher({ type: 'SET_INPUTVALUE', payload: '' })
+            dispatch({ type: 'SET_INPUTVALUE', payload: '' })
 
         } catch (error) {
             console.log(error)
@@ -92,7 +92,7 @@ function AddChecklist(
 
             const updatedCheckLists = checklists.filter((checklistObj) => checklistObj.id !== checklistID);
 
-            dispatcher({ type: 'SET_CHECKLIST', payload: updatedCheckLists })
+            dispatch({ type: 'SET_CHECKLIST', payload: updatedCheckLists })
 
         } catch (error) {
             console.log(error)
@@ -137,7 +137,7 @@ function AddChecklist(
                                         >
                                             <TextField
                                                 value={listInputValue}
-                                                onChange={e => dispatcher({ type: 'SET_INPUTVALUE', payload: e.target.value })}
+                                                onChange={e => dispatch({ type: 'SET_INPUTVALUE', payload: e.target.value })}
                                                 fullWidth
                                                 variant="outlined"
                                                 placeholder="Enter List Name..."
@@ -163,7 +163,7 @@ function AddChecklist(
 
                                                 <IconButton size="small" onClick={() => {
                                                     setIsopen(false)
-                                                    dispatcher({ type: 'SET_INPUTVALUE', payload: '' })
+                                                    dispatch({ type: 'SET_INPUTVALUE', payload: '' })
                                                 }}>
                                                     <CloseIcon
                                                         sx={{
@@ -202,7 +202,7 @@ function AddChecklist(
                                     checklists={checklists}
                                     isCard={isCard}
                                     deleteChecklist={deleteChecklist}
-                                    dispatcher={dispatcher}
+                                    dispatch={dispatch}
                                 />
                             </Box>
                         </Box>

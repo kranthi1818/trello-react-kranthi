@@ -13,7 +13,7 @@ function Card({ listObj, handleDeleteCard }) {
         isCard: null,
         isOpen: false
     }
-    const [state, dispatcher] = useReducer(cardReducer, initialstate)
+    const [state, dispatch] = useReducer(cardReducer, initialstate)
 
     const { hoveredId, isCard, isOpen } = state
 
@@ -23,14 +23,14 @@ function Card({ listObj, handleDeleteCard }) {
             {listObj.cards.map(card => (
 
                 <Box key={card.id}
-                    onMouseEnter={() => dispatcher({ type: 'SET_HOVERED_ID', payload: card.id })}
+                    onMouseEnter={() => dispatch({ type: 'SET_HOVERED_ID', payload: card.id })}
 
-                    onMouseLeave={() => dispatcher({ type: 'SET_HOVERED_ID', payload: null })}
+                    onMouseLeave={() => dispatch({ type: 'SET_HOVERED_ID', payload: null })}
 
                     sx={{ p: 1, bgcolor: "#333", borderRadius: 2, mt: 1, display: 'flex', justifyContent: 'space-between' }}>
 
                     <Box sx={{ width: '100%', height: '20px' }}
-                        onClick={() => dispatcher({ type: 'SET_SELECTED_CARD', payload: card })}
+                        onClick={() => dispatch({ type: 'SET_SELECTED_CARD', payload: card })}
 
                     >
                         <Typography color='white'>{card.name}</Typography>
@@ -53,8 +53,8 @@ function Card({ listObj, handleDeleteCard }) {
             {isCard &&
                 <AddChecklist
                     isOpen={isOpen}
-                    setIsopen={() => dispatcher({ type: 'CLOSE_CHECKLIST' })}
-                    setisCard={() => dispatcher({ type: 'CLOSE_CHECKLIST' })}
+                    setIsopen={() => dispatch({ type: 'CLOSE_CHECKLIST' })}
+                    setisCard={() => dispatch({ type: 'CLOSE_CHECKLIST' })}
                     isCard={isCard} />
             }
         </Box>
