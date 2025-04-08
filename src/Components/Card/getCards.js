@@ -8,7 +8,13 @@ export async function getCards(boardId) {
   async function getBoard() {
     try {
       const response = await axios.get(
-        `https://api.trello.com/1/boards/${boardId}?key=${APIKey}&token=${APIToken}`
+        `https://api.trello.com/1/boards/${boardId}`,
+        {
+          params: {
+            key: APIKey,
+            token: APIToken,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -20,7 +26,13 @@ export async function getCards(boardId) {
   async function getLists() {
     try {
       const response = await axios.get(
-        `https://api.trello.com/1/boards/${boardId}/lists?key=${APIKey}&token=${APIToken}`
+        `https://api.trello.com/1/boards/${boardId}/lists`,
+        {
+          params: {
+            key: APIKey,
+            token: APIToken,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -29,11 +41,16 @@ export async function getCards(boardId) {
     }
   }
 
-
   async function getCards() {
     try {
       const response = await axios.get(
-        `https://api.trello.com/1/boards/${boardId}/cards?key=${APIKey}&token=${APIToken}`
+        `https://api.trello.com/1/boards/${boardId}/cards`,
+        {
+          params: {
+            key: APIKey,
+            token: APIToken,
+          },
+        }
       );
       return response.data;
     } catch (error) {

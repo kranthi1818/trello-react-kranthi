@@ -12,7 +12,6 @@ import {
 
 export default function Cards({ name, id }) {
 
-  // navigate to particular clicked board
   const navigate = useNavigate()
   function navigateToBoard(id) {
     navigate(`/${id}`)

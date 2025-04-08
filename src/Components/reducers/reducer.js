@@ -1,133 +1,207 @@
-
 //boards reducer
-
 export function boardReducer(state, action) {
-    if (action.type === 'SET_BOARDS') {
-      return { ...state, name: action.payload };
-    } 
-    else if (action.type === 'ADD_BOARD') {
-      return { ...state, name: [...state.name, action.payload] };
-    } 
-    else if (action.type === 'TOGGLE_ADD_MODAL') {
-      return { ...state, isAdding: action.payload };
-    } 
-    else {
-      return state;
-    }
+  switch (action.type) {
+    case "SET_BOARDS":
+      return { ...state, name: action.payload }
+
+    case "ADD_BOARD":
+      return { ...state, name: [...state.name, action.payload] }
+
+    case "TOGGLE_ADD_MODAL":
+      return { ...state, isAdding: action.payload }
+
+    default:
+      return state
   }
+}
 
-  //list reducer
+//list reducer
 
-  export function listReducer(state, action) {
-    if (action.type === 'SET_BOARD') {
+export function listReducer(state, action) {
+  switch (action.type) {
+    case "SET_BOARD":
       return { ...state, board: action.payload }
 
-    } else if (action.type === 'ADD_LIST') {
+    case "ADD_LIST":
       return { ...state, list: [...state.list, action.payload] }
 
-    } else if (action.type === 'ADD_CARDS_PER_LIST') {
-      return { ...state, list: action.payload }
+    case "ADD_CARDS_PER_LIST": {
+      const { lists, cards } = action.payload
 
-    } else if (action.type === 'POST_CARD_IN_LIST') {
-      return { ...state, list: action.payload }
+      const cardsPerList = lists.reduce((acc, list) => {
+        acc.push({
+          ...list,
+          cards: cards.filter((card) => card.idList === list.id),
+        })
+        return acc
+      }, [])
 
-    } else if (action.type === 'DELETE_CARD') {
-      return { ...state, list: action.payload }
+      return { ...state, list: cardsPerList }
+    }
 
-    } else if (action.type === 'ARCHIVE_LIST') {
-      return { ...state, list: action.payload }
+    case "POST_CARD_IN_LIST": {
+      const { listID, newCard } = action.payload
 
-    } else if(action.type === 'SET_CARD_ID'){
-        return {...state,openCardId:action.payload}
-    }else if(action.type === 'SET_ISLOADING'){
-        return ({...state,isLoading:action.payload})
-    }
-    else {
-      return state;
-    }
-  }
-  
-  // card reducer
-  export function cardReducer(state, action) {
-    if (action.type === 'SET_HOVERED_ID') {
-      return { ...state, hoveredId: action.payload };
-    }
-  
-    if (action.type === 'SET_SELECTED_CARD') {
-      return { ...state, isCard: action.payload, isOpen: true };
-    }
-  
-    if (action.type === 'CLOSE_MODAL') {
-      return { ...state, isCard: null, isOpen: false };
-    }
-  
-    if (action.type === 'CLOSE_CHECKLIST_INPUT') {
-      return { ...state, isOpen: false };
-    }
-  
-    if (action.type === 'OPEN_CHECKLIST') {
-      return { ...state, isOpen: true };
-    }
-  
-    return state;
-  }
-  
-  
-  //Addchecklist and checkitems reducer
-
- export function addChecklistReducer(state,action){
-    if(action.type === 'SET_CHECKLIST'){
-        return {...state,checklists:action.payload}
-    }else if(action.type === 'SET_CHECKITEMS'){
-        return {...state,checkItems:action.payload}
-    }else if (action.type === 'UPDATE_CHECKLIST') {
-        return { ...state, checklists: [...state.checklists, action.payload] }
-    }else if (action.type === 'ADD_CHECKITEM_GROUP') {
-        return {
-            ...state,
-            checkItems: {
-                ...state.checkItems,
-                [action.payload]: [] 
-            }
+      const updatedLists = state.list.map((listObj) => {
+        if (listObj.id === listID) {
+          return {
+            ...listObj,
+            cards: [...listObj.cards, newCard],
+          }
         }
-    }else if (action.type === 'SET_INPUTVALUE') {
-        return { ...state, listInputValue: action.payload };
-    }else if (action.type === 'ADD_CHECK_ITEM') {
-        const { checklistId, checkItem } = action.payload;
-        return {
-            ...state,
-            checkItems: {
-                ...state.checkItems,
-                [checklistId]: [...(state.checkItems[checklistId] || []), checkItem]
-            }
-        };
+        return listObj
+      })
+
+      return { ...state, list: updatedLists }
     }
 
-    else if (action.type === 'DELETE_CHECK_ITEM') {
-        const { checklistId, checkItemId } = action.payload;
+    case "DELETE_CARD": {
+      const cardId = action.payload
+
+      const updatedLists = state.list.map((listObj) => {
         return {
-            ...state,
-            checkItems: {
-                ...state.checkItems,
-                [checklistId]: state.checkItems[checklistId].filter(item => item.id !== checkItemId)
-            }
-        };
+          ...listObj,
+          cards: listObj.cards.filter((cardObj) => cardObj.id !== cardId),
+        }
+      })
+
+      return { ...state, list: updatedLists }
     }
 
-    else if (action.type === 'TOGGLE_CHECK_ITEM') {
-        const { checklistId, checkItemId, newState } = action.payload;
-        return {
-            ...state,
-            checkItems: {
-                ...state.checkItems,
-                [checklistId]: state.checkItems[checklistId].map(item =>
-                    item.id === checkItemId ? { ...item, state: newState } : item
-                )
-            }
-        };
+    case "ARCHIVE_LIST": {
+      const updatedList = state.list.map((listObj) => {
+        if (listObj.id === action.payload) {
+          return {
+            ...listObj,
+            closed: true,
+          }
+        }
+        return listObj
+      })
+      return { ...state, list: updatedList }
     }
 
+    case "SET_CARD_ID":
+      return { ...state, openCardId: action.payload }
 
+    case "SET_ISLOADING":
+      return { ...state, isLoading: action.payload }
 
-    return state
- }
+    default:
+      return state
+  }
+}
+
+// card reducer
+export function cardReducer(state, action) {
+  switch (action.type) {
+    case "SET_HOVERED_ID":
+      return { ...state, hoveredId: action.payload }
+
+    case "SET_SELECTED_CARD":
+      return { ...state, isCard: action.payload, isOpen: true }
+
+    case "CLOSE_MODAL":
+      return { ...state, isCard: null, isOpen: false }
+
+    case "CLOSE_CHECKLIST_INPUT":
+      return { ...state, isOpen: false }
+
+    case "OPEN_CHECKLIST":
+      return { ...state, isOpen: true }
+
+    default:
+      return state
+  }
+}
+
+//Addchecklist and checkitems reducer
+
+export function addChecklistReducer(state, action) {
+  switch (action.type) {
+    case "SET_CHECKLIST":
+      return { ...state, checklists: action.payload }
+
+    case "SET_CHECKITEMS": {
+      const checklistData = action.payload
+      const groupedItems = checklistData.reduce((acc, checklist) => {
+        acc[checklist.id] = checklist.checkItems || []
+        return acc
+      }, {})
+      return { ...state, checkItems: groupedItems }
+    }
+
+    case "UPDATE_CHECKLIST":
+      return { ...state, checklists: [...state.checklists, action.payload] }
+
+    case "DELETE_CHECKLIST": {
+      const checklistId = action.payload
+
+      const updatedChecklists = state.checklists.filter(
+        (checklist) => checklist.id !== checklistId
+      )
+
+      // remove associated checkItems
+      const { [checklistId]: removed, ...remainingCheckItems } =
+        state.checkItems
+
+      return {
+        ...state,
+        checklists: updatedChecklists,
+        checkItems: remainingCheckItems,
+      }
+    }
+
+    case "ADD_CHECKITEM_GROUP":
+      return {
+        ...state,
+        checkItems: {
+          ...state.checkItems,
+          [action.payload]: [],
+        },
+      }
+
+    case "SET_INPUTVALUE":
+      return { ...state, listInputValue: action.payload }
+
+    case "ADD_CHECK_ITEM": {
+      const { checklistId, checkItem } = action.payload
+      return {
+        ...state,
+        checkItems: {
+          ...state.checkItems,
+          [checklistId]: [...(state.checkItems[checklistId] || []), checkItem],
+        },
+      }
+    }
+
+    case "DELETE_CHECK_ITEM": {
+      const { checklistId, checkItemId } = action.payload
+      return {
+        ...state,
+        checkItems: {
+          ...state.checkItems,
+          [checklistId]: state.checkItems[checklistId].filter(
+            (item) => item.id !== checkItemId
+          ),
+        },
+      }
+    }
+
+    case "TOGGLE_CHECK_ITEM": {
+      const { checklistId, checkItemId, newState } = action.payload
+      return {
+        ...state,
+        checkItems: {
+          ...state.checkItems,
+          [checklistId]: state.checkItems[checklistId].map((item) =>
+            item.id === checkItemId ? { ...item, state: newState } : item
+          ),
+        },
+      }
+    }
+
+    default:
+      return state
+  }
+}

@@ -14,7 +14,7 @@ import {
 
 import AddIcon from "@mui/icons-material/Add";
 
-import { boardReducer } from '../Components/reducers/reducer';
+import { boardReducer } from '../reducers/reducer';
 
 const initialState = {
     name: [],
@@ -31,7 +31,15 @@ function Home() {
     useEffect(() => {
         async function getBoards() {
             try {
-                const response = await axios.get(`https://api.trello.com/1/members/me/boards?key=${APIKey}&token=${APIToken}`);
+                const response = await axios.get(
+                    'https://api.trello.com/1/members/me/boards',
+                    {
+                        params: {
+                            key: APIKey,
+                            token: APIToken
+                        }
+                    }
+                );
 
                 dispatch({ type: 'SET_BOARDS', payload: response.data });
 
@@ -39,17 +47,28 @@ function Home() {
                 console.error("Error fetching data:", error);
             }
         }
+
         getBoards();
     }, []);
 
     async function postBoards(boardsName) {
         try {
             const response = await axios.post('https://api.trello.com/1/boards/',
-                { name: boardsName },
-                { params: { key: APIKey, token: APIToken } }
+                {
+                    name: boardsName
+                },
+                {
+                    params: {
+                        key: APIKey, 
+                        token: APIToken
+                    }
+                }
             );
+
             dispatch({ type: 'ADD_BOARD', payload: { id: response.data.id, name: response.data.name } });
+
         } catch (error) {
+
             console.log("Error posting data:", error);
         }
     }

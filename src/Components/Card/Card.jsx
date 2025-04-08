@@ -15,7 +15,7 @@ function Card({ listObj, handleDeleteCard }) {
     }
     const [state, dispatch] = useReducer(cardReducer, initialstate)
 
-    const { hoveredId, isCard, isOpen } = state
+    const { hoveredId, isCard } = state
 
 
     return (

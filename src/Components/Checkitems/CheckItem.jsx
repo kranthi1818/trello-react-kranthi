@@ -11,60 +11,57 @@ function CheckItem({ checkItems, isCardId, checklistId, dispatch }) {
     const APIKey = import.meta.env.VITE_APIkey
     const APIToken = import.meta.env.VITE_APItoken
 
+
     async function createCheckItem(checkItemName) {
         try {
-            const response = await axios.post(`https://api.trello.com/1/checklists/${checklistId}/checkItems?name=${checkItemName}&key=${APIKey}&token=${APIToken}`)
-
-            console.log(response.data)
+            const response = await axios.post(`https://api.trello.com/1/checklists/${checklistId}/checkItems`,
+                null,
+                { params: { name: checkItemName, key: APIKey, token: APIToken } }
+            );
+            
             const newItem = response.data;
 
-            dispatch({ type: 'ADD_CHECK_ITEM',
-                payload: {
-                    checklistId,
-                    checkItem: newItem,
-                }
-            });
+            dispatch({ type: 'ADD_CHECK_ITEM', payload: { checklistId, checkItem: newItem } });
+            setCheckItemInput('');
 
-            setCheckItemInput('')
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
+
     async function deleteCheckItem(checkItemId, cardId, checklistId) {
         try {
-            await axios.delete(`https://api.trello.com/1/cards/${cardId}/checkItem/${checkItemId}?key=${APIKey}&token=${APIToken}`)
+            await axios.delete(`https://api.trello.com/1/cards/${cardId}/checkItem/${checkItemId}`,
+                { params: { key: APIKey, token: APIToken } } )
 
             dispatch({
                 type: 'DELETE_CHECK_ITEM',
                 payload: {
-                    checklistId,
-                    checkItemId,
+                    checklistId,checkItemId
                 }
             });
-
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
+
     async function toggleCheckItem(itemId, currentState) {
-        const newState = currentState === 'complete' ? 'incomplete' : 'complete';
-    
+
+        const newState = currentState === 'complete' ? 'incomplete' : 'complete'
         try {
-            await axios.put(
-                `https://api.trello.com/1/cards/${isCardId}/checkItem/${itemId}?state=${newState}&key=${APIKey}&token=${APIToken}`
-            );
-    
-            dispatch({ type: 'TOGGLE_CHECK_ITEM',
-                payload: {
-                    checklistId,
-                    checkItemId: itemId,
-                    newState,
-                }
-            });
+            await axios.put(`https://api.trello.com/1/cards/${isCardId}/checkItem/${itemId}`,
+                null,
+
+                { params: { state: newState, key: APIKey, token: APIToken } }
+
+            )
+
+            dispatch({type: 'TOGGLE_CHECK_ITEM', payload: {checklistId, checkItemId: itemId, newState}})
+            
         } catch (error) {
-            console.error('Error updating checkItem state:', error);
+            console.error('Error updating checkItem state:', error)
         }
     }
     

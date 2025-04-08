@@ -8,79 +8,90 @@ import {
     IconButton
 } from '@mui/material'
 
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import CloseIcon from "@mui/icons-material/Close";
-import AddIcon from "@mui/icons-material/Add";
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined'
+import CloseIcon from "@mui/icons-material/Close"
+import AddIcon from "@mui/icons-material/Add"
 
-import { useEffect, useReducer } from 'react';
-import axios from 'axios';
-import CheckList from './CheckList';
+import { useEffect, useReducer } from 'react'
+import axios from 'axios'
+import CheckList from './CheckList'
 
 
-import { addChecklistReducer } from '../reducers/reducer';
+import { addChecklistReducer } from '../reducers/reducer'
 
 function AddChecklist({ state, dispatch }) {
-    const { isCard, isOpen } = state;
+    const { isCard, isOpen } = state
 
     const initialState = {
         checklists: [],
         listInputValue: '',
         checkItems: {}
-    };
+    }
 
-    const [localState, localDispatch] = useReducer(addChecklistReducer, initialState);
-    const { checklists, listInputValue, checkItems } = localState;
+    const [localState, localDispatch] = useReducer(addChecklistReducer, initialState)
 
-    const APIKey = import.meta.env.VITE_APIkey;
-    const APIToken = import.meta.env.VITE_APItoken;
+    const { checklists, listInputValue, checkItems } = localState
+
+    const APIKey = import.meta.env.VITE_APIkey
+    const APIToken = import.meta.env.VITE_APItoken
 
     useEffect(() => {
         async function getCheckLists() {
             try {
-                const response = await axios.get(`https://api.trello.com/1/cards/${isCard.id}/checklists?key=${APIKey}&token=${APIToken}`);
-                const checklistData = response.data;
+                const response = await axios.get(
+                    `https://api.trello.com/1/cards/${isCard.id}/checklists`,
+                    {
+                        params: { key: APIKey, token: APIToken }
+                    })
+
+                const checklistData = response.data
 
                 localDispatch({ type: 'SET_CHECKLIST', payload: checklistData });
+                localDispatch({ type: 'SET_CHECKITEMS', payload: checklistData }); 
 
-                const itemsGroupedByChecklist = checklistData.reduce((acc, checklist) => {
-                    acc[checklist.id] = checklist.checkItems || [];
-                    return acc;
-                }, {});
-
-                localDispatch({ type: 'SET_CHECKITEMS', payload: itemsGroupedByChecklist });
             } catch (error) {
-                console.log(error);
+                console.log(error)
             }
         }
 
-        if (isCard?.id) {
-            getCheckLists();
-        }
+        getCheckLists()
+    }, [isCard.id])
 
-    }, [isCard?.id]);
 
     async function postCheckList(cardId, listName) {
-        if (!listName.trim()) return;
-        try {
-            const response = await axios.post(`https://api.trello.com/1/cards/${cardId}/checklists?key=${APIKey}&token=${APIToken}&name=${listName}`);
-            const newChecklist = response.data;
 
-            localDispatch({ type: 'UPDATE_CHECKLIST', payload: newChecklist });
-            localDispatch({ type: 'ADD_CHECKITEM_GROUP', payload: newChecklist.id });
-            localDispatch({ type: 'SET_INPUTVALUE', payload: '' });
+        if (!listName.trim()) return
+
+        try {
+            const response = await axios.post(
+                `https://api.trello.com/1/cards/${cardId}/checklists`,
+                null,
+                {
+                    params: { key: APIKey, token: APIToken, name: listName}
+                })
+            const newChecklist = response.data
+
+            localDispatch({ type: 'UPDATE_CHECKLIST', payload: newChecklist })
+            localDispatch({ type: 'ADD_CHECKITEM_GROUP', payload: newChecklist.id })
+            localDispatch({ type: 'SET_INPUTVALUE', payload: '' })
 
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
     }
 
+
     async function deleteChecklist(checklistID) {
         try {
-            await axios.delete(`https://api.trello.com/1/checklists/${checklistID}?key=${APIKey}&token=${APIToken}`);
-            const updatedCheckLists = checklists.filter((checklistObj) => checklistObj.id !== checklistID);
-            localDispatch({ type: 'SET_CHECKLIST', payload: updatedCheckLists });
+            await axios.delete(`https://api.trello.com/1/checklists/${checklistID}`,
+                {
+                    params: {key: APIKey,token: APIToken }
+                })
+
+            localDispatch({ type: 'DELETE_CHECKLIST', payload: checklistID })
+
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
     }
 
@@ -114,8 +125,8 @@ function AddChecklist({ state, dispatch }) {
                             <Box>
                                 {isOpen ? (
                                     <form onSubmit={(e) => {
-                                        e.preventDefault();
-                                        postCheckList(isCard.id, listInputValue);
+                                        e.preventDefault()
+                                        postCheckList(isCard.id, listInputValue)
                                     }}>
                                         <TextField
                                             value={listInputValue}
@@ -144,8 +155,8 @@ function AddChecklist({ state, dispatch }) {
                                                 Add Checklist
                                             </Button>
                                             <IconButton size="small" onClick={() => {
-                                                dispatch({ type: 'CLOSE_CHECKLIST_INPUT' });
-                                                localDispatch({ type: 'SET_INPUTVALUE', payload: '' });
+                                                dispatch({ type: 'CLOSE_CHECKLIST_INPUT' })
+                                                localDispatch({ type: 'SET_INPUTVALUE', payload: '' })
                                             }}>
                                                 <CloseIcon sx={{ fontSize: "1.3rem", "&:hover": { bgcolor: '#8E6D9F' } }} />
                                             </IconButton>
@@ -187,7 +198,7 @@ function AddChecklist({ state, dispatch }) {
                 </Modal>
             )}
         </Box>
-    );
+    )
 }
 
 export default AddChecklist
