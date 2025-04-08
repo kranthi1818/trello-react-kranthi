@@ -19,200 +19,175 @@ import CheckList from './CheckList';
 
 import { addChecklistReducer } from '../reducers/reducer';
 
-function AddChecklist(
-    { isCard,
-        setisCard,
-        isOpen,
-        setIsopen
-    }) {
+function AddChecklist({ state, dispatch }) {
+    const { isCard, isOpen } = state;
 
-    const initialstate =
-    {
+    const initialState = {
         checklists: [],
         listInputValue: '',
         checkItems: {}
-    }
+    };
 
-    const [state, dispatch] = useReducer(addChecklistReducer, initialstate)
+    const [localState, localDispatch] = useReducer(addChecklistReducer, initialState);
+    const { checklists, listInputValue, checkItems } = localState;
 
-    const { checklists, listInputValue, checkItems } = state
-
-    const APIKey = import.meta.env.VITE_APIkey
-    const APIToken = import.meta.env.VITE_APItoken
+    const APIKey = import.meta.env.VITE_APIkey;
+    const APIToken = import.meta.env.VITE_APItoken;
 
     useEffect(() => {
-
         async function getCheckLists() {
             try {
-                const response = await axios.get(`https://api.trello.com/1/cards/${isCard.id}/checklists?key=${APIKey}&token=${APIToken}`)
-
+                const response = await axios.get(`https://api.trello.com/1/cards/${isCard.id}/checklists?key=${APIKey}&token=${APIToken}`);
                 const checklistData = response.data;
-                dispatch({ type: 'SET_CHECKLIST', payload: checklistData })
+
+                localDispatch({ type: 'SET_CHECKLIST', payload: checklistData });
 
                 const itemsGroupedByChecklist = checklistData.reduce((acc, checklist) => {
                     acc[checklist.id] = checklist.checkItems || [];
                     return acc;
                 }, {});
 
-                dispatch({ type: 'SET_CHECKITEMS', payload: itemsGroupedByChecklist })
-
+                localDispatch({ type: 'SET_CHECKITEMS', payload: itemsGroupedByChecklist });
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
         }
-        getCheckLists()
 
+        if (isCard?.id) {
+            getCheckLists();
+        }
 
-    }, [isCard.id])
-
+    }, [isCard?.id]);
 
     async function postCheckList(cardId, listName) {
         if (!listName.trim()) return;
         try {
-            const response = await axios.post(`https://api.trello.com/1/cards/${cardId}/checklists?key=${APIKey}&token=${APIToken}&name=${listName}`,
-            )
+            const response = await axios.post(`https://api.trello.com/1/cards/${cardId}/checklists?key=${APIKey}&token=${APIToken}&name=${listName}`);
             const newChecklist = response.data;
 
-
-            dispatch({ type: 'UPDATE_CHECKLIST', payload: newChecklist })
-
-            dispatch({ type: 'ADD_CHECKITEM_GROUP', payload: newChecklist.id });
-
-            dispatch({ type: 'SET_INPUTVALUE', payload: '' })
+            localDispatch({ type: 'UPDATE_CHECKLIST', payload: newChecklist });
+            localDispatch({ type: 'ADD_CHECKITEM_GROUP', payload: newChecklist.id });
+            localDispatch({ type: 'SET_INPUTVALUE', payload: '' });
 
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 
     async function deleteChecklist(checklistID) {
         try {
-            await axios.delete(`https://api.trello.com/1/checklists/${checklistID}?key=${APIKey}&token=${APIToken}`)
-
-
+            await axios.delete(`https://api.trello.com/1/checklists/${checklistID}?key=${APIKey}&token=${APIToken}`);
             const updatedCheckLists = checklists.filter((checklistObj) => checklistObj.id !== checklistID);
-
-            dispatch({ type: 'SET_CHECKLIST', payload: updatedCheckLists })
-
+            localDispatch({ type: 'SET_CHECKLIST', payload: updatedCheckLists });
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
-
     }
 
     return (
-
         <Box>
-            <Box>
-                {isCard && (
-                    <Modal open={Boolean(isCard)} onClose={() => setisCard(null)}>
-                        <Box sx={{
-                            position: 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            height: 700,
-                            width: 700,
-                            p: 4,
-                            borderRadius: '8px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 2,
-                            boxShadow: 24,
-                            bgcolor: '#323940',
-                            color: "white"
-                        }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Typography variant="h6">{isCard.name}</Typography>
-                                <CloseOutlinedIcon onClick={() => setisCard(null)} sx={{ cursor: 'pointer' }} />
-                            </Box>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Typography variant="h6">Add To Checklist</Typography>
-                                <Box>
-                                    {isOpen ? (
-                                        <form onSubmit={(e) => {
-                                            e.preventDefault()
-                                            postCheckList(isCard.id, listInputValue)
-                                        }}
-                                        >
-                                            <TextField
-                                                value={listInputValue}
-                                                onChange={e => dispatch({ type: 'SET_INPUTVALUE', payload: e.target.value })}
-                                                fullWidth
-                                                variant="outlined"
-                                                placeholder="Enter List Name..."
-                                                autoFocus
-                                                sx={{
-                                                    backgroundColor: "#738496",
-                                                    borderRadius: 2,
-                                                    "& .MuiOutlinedInput-input": {
-                                                        padding: "4px 8px",
-                                                        fontSize: "0.875rem",
-                                                        paddingBottom: 4,
-                                                        wordBreak: 'break-word'
-                                                    },
-                                                }}
-                                            />
-                                            <Stack direction="row" spacing={1} mt={1} alignItems="center">
-                                                <Button type='submit'
-                                                    variant="contained"
-                                                    sx={{ padding: "4px", fontSize: "0.75rem", minWidth: "auto" }}
-                                                >
-                                                    Add Checklist
-                                                </Button>
+            {isCard && (
+                <Modal open={Boolean(isCard)} onClose={() => dispatch({ type: 'CLOSE_MODAL' })}>
+                    <Box sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        height: 700,
+                        width: 700,
+                        p: 4,
+                        borderRadius: '8px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2,
+                        boxShadow: 24,
+                        bgcolor: '#323940',
+                        color: "white"
+                    }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="h6">{isCard.name}</Typography>
+                            <CloseOutlinedIcon onClick={() => dispatch({ type: 'CLOSE_MODAL' })} sx={{ cursor: 'pointer' }} />
+                        </Box>
 
-                                                <IconButton size="small" onClick={() => {
-                                                    setIsopen(false)
-                                                    dispatch({ type: 'SET_INPUTVALUE', payload: '' })
-                                                }}>
-                                                    <CloseIcon
-                                                        sx={{
-                                                            fontSize: "1.3rem",
-                                                            "&:hover": { bgcolor: '#8E6D9F' },
-                                                        }}
-                                                    />
-                                                </IconButton>
-                                            </Stack>
-                                        </form>
-                                    ) : (
-                                        <Box onClick={() => setIsopen(true)}
-                                            sx={{
-                                                display: "flex",
-                                                alignItems: "center",
-                                                height: "100%",
-                                                cursor: "pointer",
-                                                borderRadius: 1,
-                                                backgroundColor: 'black',
-                                                "&:hover": { bgcolor: "#282F27" },
-                                            }}
-                                        >
-                                            <IconButton size="small" sx={{ color: 'gray' }}>
-                                                <AddIcon />
-                                            </IconButton>
-                                            <Typography variant="body2" sx={{ fontSize: "0.9rem", color: 'gray', paddingRight: 2 }}>
-                                                Add Checklist
-                                            </Typography>
-                                        </Box>
-                                    )}
-                                </Box>
-                            </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="h6">Add To Checklist</Typography>
                             <Box>
-                                <CheckList
-                                    checkItems={checkItems}
-                                    checklists={checklists}
-                                    isCard={isCard}
-                                    deleteChecklist={deleteChecklist}
-                                    dispatch={dispatch}
-                                />
+                                {isOpen ? (
+                                    <form onSubmit={(e) => {
+                                        e.preventDefault();
+                                        postCheckList(isCard.id, listInputValue);
+                                    }}>
+                                        <TextField
+                                            value={listInputValue}
+                                            onChange={e => localDispatch({ type: 'SET_INPUTVALUE', payload: e.target.value })}
+                                            fullWidth
+                                            variant="outlined"
+                                            placeholder="Enter List Name..."
+                                            autoFocus
+                                            sx={{
+                                                backgroundColor: "#738496",
+                                                borderRadius: 2,
+                                                "& .MuiOutlinedInput-input": {
+                                                    padding: "4px 8px",
+                                                    fontSize: "0.875rem",
+                                                    paddingBottom: 4,
+                                                    wordBreak: 'break-word'
+                                                },
+                                            }}
+                                        />
+                                        <Stack direction="row" spacing={1} mt={1} alignItems="center">
+                                            <Button
+                                                type="submit"
+                                                variant="contained"
+                                                sx={{ padding: "4px", fontSize: "0.75rem", minWidth: "auto" }}
+                                            >
+                                                Add Checklist
+                                            </Button>
+                                            <IconButton size="small" onClick={() => {
+                                                dispatch({ type: 'CLOSE_CHECKLIST_INPUT' });
+                                                localDispatch({ type: 'SET_INPUTVALUE', payload: '' });
+                                            }}>
+                                                <CloseIcon sx={{ fontSize: "1.3rem", "&:hover": { bgcolor: '#8E6D9F' } }} />
+                                            </IconButton>
+                                        </Stack>
+                                    </form>
+                                ) : (
+                                    <Box onClick={() => dispatch({ type: 'OPEN_CHECKLIST' })}
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            height: "100%",
+                                            cursor: "pointer",
+                                            borderRadius: 1,
+                                            backgroundColor: 'black',
+                                            "&:hover": { bgcolor: "#282F27" },
+                                        }}
+                                    >
+                                        <IconButton size="small" sx={{ color: 'gray' }}>
+                                            <AddIcon />
+                                        </IconButton>
+                                        <Typography variant="body2" sx={{ fontSize: "0.9rem", color: 'gray', paddingRight: 2 }}>
+                                            Add Checklist
+                                        </Typography>
+                                    </Box>
+                                )}
                             </Box>
                         </Box>
-                    </Modal>
-                )}
-            </Box>
+
+                        <Box>
+                            <CheckList
+                                checkItems={checkItems}
+                                checklists={checklists}
+                                isCard={isCard}
+                                deleteChecklist={deleteChecklist}
+                                dispatch={localDispatch}
+                            />
+                        </Box>
+                    </Box>
+                </Modal>
+            )}
         </Box>
-    )
+    );
 }
 
 export default AddChecklist
-
-

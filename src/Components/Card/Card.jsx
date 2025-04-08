@@ -52,10 +52,8 @@ function Card({ listObj, handleDeleteCard }) {
 
             {isCard &&
                 <AddChecklist
-                    isOpen={isOpen}
-                    setIsopen={() => dispatch({ type: 'CLOSE_CHECKLIST' })}
-                    setisCard={() => dispatch({ type: 'CLOSE_CHECKLIST' })}
-                    isCard={isCard} />
+                state={state}
+                dispatch={dispatch} />
             }
         </Box>
     )

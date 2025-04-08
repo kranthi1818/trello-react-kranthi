@@ -49,21 +49,29 @@ export function boardReducer(state, action) {
   
   // card reducer
   export function cardReducer(state, action) {
-  
     if (action.type === 'SET_HOVERED_ID') {
-      return { ...state, hoveredId: action.payload }
+      return { ...state, hoveredId: action.payload };
     }
   
     if (action.type === 'SET_SELECTED_CARD') {
-      return { ...state, isCard: action.payload, isOpen: true }
+      return { ...state, isCard: action.payload, isOpen: true };
     }
   
-    if (action.type === 'CLOSE_CHECKLIST') {
-      return { ...state, isCard: null, isOpen: false }
+    if (action.type === 'CLOSE_MODAL') {
+      return { ...state, isCard: null, isOpen: false };
     }
   
-    return state
+    if (action.type === 'CLOSE_CHECKLIST_INPUT') {
+      return { ...state, isOpen: false };
+    }
+  
+    if (action.type === 'OPEN_CHECKLIST') {
+      return { ...state, isOpen: true };
+    }
+  
+    return state;
   }
+  
   
   //Addchecklist and checkitems reducer
 
