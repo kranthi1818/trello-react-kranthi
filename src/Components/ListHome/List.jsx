@@ -110,7 +110,6 @@ function List() {
   }
 
   async function archiveList(listID) {
-    console.log(listID);
 
     try {
       const response = await axios.put(
@@ -126,8 +125,7 @@ function List() {
       const updatedID = response.data.id
 
       dispatch({ type: 'ARCHIVE_LIST', payload: updatedID })
-
-      console.log(response)
+      
     } catch (error) {
       console.log(error)
     }

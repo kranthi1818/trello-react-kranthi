@@ -35,6 +35,7 @@ export function listReducer(state, action) {
         })
         return acc
       }, [])
+      console.log(cardsPerList)
 
       return { ...state, list: cardsPerList }
     }
@@ -99,16 +100,10 @@ export function cardReducer(state, action) {
       return { ...state, hoveredId: action.payload }
 
     case "SET_SELECTED_CARD":
-      return { ...state, isCard: action.payload, isOpen: true }
+      return { ...state, isCard: action.payload }
 
     case "CLOSE_MODAL":
-      return { ...state, isCard: null, isOpen: false }
-
-    case "CLOSE_CHECKLIST_INPUT":
-      return { ...state, isOpen: false }
-
-    case "OPEN_CHECKLIST":
-      return { ...state, isOpen: true }
+      return { ...state, isCard: null }
 
     default:
       return state
@@ -124,10 +119,12 @@ export function addChecklistReducer(state, action) {
 
     case "SET_CHECKITEMS": {
       const checklistData = action.payload
+
       const groupedItems = checklistData.reduce((acc, checklist) => {
         acc[checklist.id] = checklist.checkItems || []
         return acc
       }, {})
+
       return { ...state, checkItems: groupedItems }
     }
 
@@ -141,9 +138,9 @@ export function addChecklistReducer(state, action) {
         (checklist) => checklist.id !== checklistId
       )
 
-      // remove associated checkItems
-      const { [checklistId]: removed, ...remainingCheckItems } =
-        state.checkItems
+      const remainingCheckItems = { ...state.checkItems }
+
+      delete remainingCheckItems[checklistId]
 
       return {
         ...state,
@@ -189,7 +186,10 @@ export function addChecklistReducer(state, action) {
     }
 
     case "TOGGLE_CHECK_ITEM": {
-      const { checklistId, checkItemId, newState } = action.payload
+      const { checklistId, checkItemId, currentState } = action.payload
+      
+      const newState = currentState === 'complete' ? 'incomplete' : 'complete'
+
       return {
         ...state,
         checkItems: {

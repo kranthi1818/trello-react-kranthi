@@ -3,15 +3,10 @@ import {
     Modal,
     Typography,
     TextField,
-    Stack,
     Button,
-    IconButton
 } from '@mui/material'
 
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined'
-import CloseIcon from "@mui/icons-material/Close"
-import AddIcon from "@mui/icons-material/Add"
-
 import { useEffect, useReducer } from 'react'
 import axios from 'axios'
 import CheckList from './CheckList'
@@ -20,7 +15,7 @@ import CheckList from './CheckList'
 import { addChecklistReducer } from '../reducers/reducer'
 
 function AddChecklist({ state, dispatch }) {
-    const { isCard, isOpen } = state
+    const { isCard} = state
 
     const initialState = {
         checklists: [],

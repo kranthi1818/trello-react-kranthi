@@ -11,7 +11,6 @@ function Card({ listObj, handleDeleteCard }) {
     {
         hoveredId: null,
         isCard: null,
-        isOpen: false
     }
     const [state, dispatch] = useReducer(cardReducer, initialstate)
 

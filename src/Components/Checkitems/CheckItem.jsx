@@ -49,31 +49,29 @@ function CheckItem({ checkItems, isCardId, checklistId, dispatch }) {
 
     async function toggleCheckItem(itemId, currentState) {
 
-        const newState = currentState === 'complete' ? 'incomplete' : 'complete'
         try {
             await axios.put(`https://api.trello.com/1/cards/${isCardId}/checkItem/${itemId}`,
                 null,
 
-                { params: { state: newState, key: APIKey, token: APIToken } }
+                { params: { state: currentState, key: APIKey, token: APIToken } }
 
             )
 
-            dispatch({type: 'TOGGLE_CHECK_ITEM', payload: {checklistId, checkItemId: itemId, newState}})
+            dispatch({type: 'TOGGLE_CHECK_ITEM', payload: {checklistId, checkItemId: itemId, currentState}})
             
         } catch (error) {
             console.error('Error updating checkItem state:', error)
         }
     }
     
-
-
     return (
         <Box>
             <Box>
                 {checkItems.map((item) => (
                     <Box key={item.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginLeft: 3, marginRight: 3 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Checkbox color="success" onChange={() => toggleCheckItem(item.id, item.state)} checked={item.state === 'complete'} />
+                            <Checkbox color="success" onChange={() => toggleCheckItem(item.id, item.state)} 
+                            checked={item.state === 'complete'} />
                             <Box>{item.name}</Box>
                         </Box>
                         <DeleteIcon
