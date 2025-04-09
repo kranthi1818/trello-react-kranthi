@@ -5,9 +5,8 @@ import { useParams } from 'react-router-dom'
 import AddList from '../AddList/AddList';
 import { Loaders } from '../Card/Loaders'
 import CardList from '../Card/CardList';
-import Card from '../Card/Card'
-
-import axios from 'axios'
+import Card from '../Card/Card' 
+import {createList,createCard,removeCard,closeList} from '../apicalls/listapi'
 
 import { Stack, Typography, Box, CssBaseline } from "@mui/material";
 import ArchiveIcon from '@mui/icons-material/Archive';
@@ -25,17 +24,12 @@ import {
   archiveSingleList
 } from '../slices/listSlice'
 
-
-
 function List() {
   const { boardId } = useParams()
 
   const { list, board, isLoading, openCardId } = useSelector((state) => state.list)
 
   const dispatch = useDispatch()
-
-  const APIKey = import.meta.env.VITE_APIkey
-  const APIToken = import.meta.env.VITE_APItoken
 
   useEffect(() => {
     async function fetchBoard() {
@@ -57,75 +51,38 @@ function List() {
 
   async function postLists(listName) {
     try {
-      const response = await axios.post(`https://api.trello.com/1/lists?key=${APIKey}&token=${APIToken}`,
-        {
-          name: listName,
-          idBoard: boardId
-        });
-
-      dispatch(addList({ ...response.data, cards: [] }))
-
+      const response = await createList(listName, boardId);
+      dispatch(addList({ ...response, cards: [] }));
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
-
+  
   async function postCard(cardName, listID) {
     try {
-      const response = await axios.post(
-        `https://api.trello.com/1/cards?key=${APIKey}&token=${APIToken}`,
-        {
-          name: cardName,
-          idList: listID
-        }
-      );
-
-      const newCard = response.data;
-
-      dispatch(postCardInList({ listID, newCard }))
-
+      const response = await createCard(cardName, listID);
+      const newCard = response;
+      dispatch(postCardInList({ listID, newCard }));
     } catch (error) {
-      console.log('Error creating card:', error)
+      console.log('Error creating card:', error);
     }
   }
-
+  
   async function deleteCard(cardId) {
     try {
-      await axios.delete(
-        `https://api.trello.com/1/cards/${cardId}`,
-        {
-          params: {
-            key: APIKey,
-            token: APIToken
-          }
-        }
-      )
-      dispatch(deletingSingleCard(cardId))
-
+      await removeCard(cardId);
+      dispatch(deletingSingleCard(cardId));
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
-
+  
   async function archiveList(listID) {
-
     try {
-      const response = await axios.put(
-        `https://api.trello.com/1/lists/${listID}/closed`,
-        { value: true },
-        {
-          params: {
-            key: APIKey,
-            token: APIToken
-          }
-        }
-      );
-      const updatedID = response.data.id
-
-      dispatch(archiveSingleList(updatedID))
-
+      const updatedID = await closeList(listID);
+      dispatch(archiveSingleList(updatedID));
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 

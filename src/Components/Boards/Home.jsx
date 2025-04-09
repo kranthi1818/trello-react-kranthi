@@ -1,7 +1,6 @@
 
 import React, { useEffect } from 'react'
-import axios from 'axios'
-import { fetchBoards,createBoard } from '../apicalls/boardapi'
+import { fetchBoards, createBoard } from '../apicalls/boardapi'
 import NavBar from './NavBar'
 import Board from './Board'
 import CreateBoard from './CreateBoard'
@@ -24,27 +23,24 @@ function Home() {
 
     const boards = useSelector((state) => state.board.name)
 
-    const APIKey = import.meta.env.VITE_APIkey
-    const APIToken = import.meta.env.VITE_APItoken
-
     useEffect(() => {
         async function getBoards() {
             try {
-                const data = await fetchBoards();
-                dispatch(setBoards(data));
+                const data = await fetchBoards()
+                dispatch(setBoards(data))
             } catch (error) {
-                console.error("Error fetching boards:", error);
+                console.error("Error fetching boards:", error)
             }
         }
-        getBoards();
-    }, []);
+        getBoards()
+    }, [])
 
     async function postBoards(boardName) {
         try {
-            const newBoard = await createBoard(boardName);
-            dispatch(addBoards({ id: newBoard.id, name: newBoard.name }));
+            const newBoard = await createBoard(boardName)
+            dispatch(addBoards({ id: newBoard.id, name: newBoard.name }))
         } catch (error) {
-            console.log("Error creating board:", error);
+            console.log("Error creating board:", error)
         }
     }
 
@@ -58,19 +54,30 @@ function Home() {
         <>
             <CssBaseline />
 
-            <Box sx={{ backgroundColor: '#1D2125', height: "100vh", minWidth: "100vw", overflowX: "auto", overflowY: "auto" }}>
+            <Box sx={{
+                backgroundColor: '#1D2125',
+                height: "100vh",
+                minWidth: "100vw", overflowX: "auto",
+                overflowY: "auto"
+            }}>
 
                 {/* navbar componenet */}
                 <NavBar />
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
 
                     {boards.map((items) => (
-                        <Board prefs={items.prefs} key={items.id} items={items} sx={{ minWidth: '25rem' }} name={items.name} id={items.id} />
+                        <Board prefs={items.prefs} key={items.id} items={items}
+                            sx={{ minWidth: '25rem' }} name={items.name} id={items.id} />
                     ))}
 
                     <Box onClick={addToBoard}
 
-                        sx={{ borderRadius: 1, marginTop: 10, marginLeft: 3, width: '15rem', height: '9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', bgcolor: '#333C43', '&:hover': { bgcolor: '#1A1E21' } }}
+                        sx={{
+                            borderRadius: 1, marginTop: 10,
+                            marginLeft: 3, width: '15rem', height: '9rem',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', bgcolor: '#333C43', '&:hover': { bgcolor: '#1A1E21' }
+                        }}
                     >
                         <CardContent sx={{
                             display: 'flex',
@@ -82,11 +89,10 @@ function Home() {
                             <AddIcon />
                             <Typography variant="h6" align="center">Add To Boards</Typography>
                         </CardContent>
-
                     </Box>
                 </Box>
 
-                <CreateBoard postBoards={postBoards}/>
+                <CreateBoard postBoards={postBoards} />
                 
             </Box>
         </>

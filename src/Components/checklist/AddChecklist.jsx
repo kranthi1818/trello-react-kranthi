@@ -5,11 +5,11 @@ import {
     TextField,
     Button,
 } from '@mui/material'
-
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined'
+
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 import CheckList from './CheckList'
+import {fetchChecklists,createChecklist,removeChecklist} from '../apicalls/checklistapi'
 
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -32,67 +32,46 @@ function AddChecklist() {
     const APIKey = import.meta.env.VITE_APIkey
     const APIToken = import.meta.env.VITE_APItoken
 
-    useEffect(() => {
-        async function getCheckLists() {
-            try {
-                const response = await axios.get(`https://api.trello.com/1/cards/${isCard.id}/checklists`,
-                    {
-                        params: { key: APIKey, token: APIToken }
-                    })
-
-                const checklistData = response.data
-
-                dispatch(setCheckList(checklistData));
-                dispatch(setCheckItems(checklistData));
-
-            } catch (error) {
-                console.log(error)
-            }
-        }
-
-        getCheckLists()
-    }, [isCard?.id])
-
-
-    async function postCheckList(cardId, listName) {
-
-        if (!listName.trim()) return
-
-        try {
-            const response = await axios.post(
-                `https://api.trello.com/1/cards/${cardId}/checklists`,
-                null,
-                {
-                    params: { key: APIKey, token: APIToken, name: listName }
-                })
-            const newChecklist = response.data
-
-            dispatch(updateCheckLists(newChecklist))
-
-            dispatch(addCheckItemGroup(newChecklist.id))
-
-            setInputValue('')
-
-        } catch (error) {
-            console.log(error)
-        }
+   
+useEffect(() => {
+    async function getCheckLists() {
+      try {
+        const checklistData = await fetchChecklists(isCard.id)
+        dispatch(setCheckList(checklistData))
+        dispatch(setCheckItems(checklistData))
+      } catch (error) {
+        console.log(error)
+      }
     }
-
-
-    async function deleteChecklist(checklistID) {
-        try {
-            await axios.delete(`https://api.trello.com/1/checklists/${checklistID}`,
-                {
-                    params: { key: APIKey, token: APIToken }
-                })
-
-            dispatch(deleteCheckList(checklistID))
-
-        } catch (error) {
-            console.log(error)
-        }
+  
+    if (isCard?.id) {
+      getCheckLists()
     }
+  }, [isCard?.id])
+  
+  async function postCheckList(cardId, listName) {
+    if (!listName.trim()) return
+  
+    try {
+      const newChecklist = await createChecklist(cardId, listName)
+  
+      dispatch(updateCheckLists(newChecklist))
+      dispatch(addCheckItemGroup(newChecklist.id))
+      setInputValue('')
 
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  
+  async function deleteChecklist(checklistID) {
+    try {
+      await removeChecklist(checklistID)
+      dispatch(deleteCheckList(checklistID))
+    } catch (error) {
+      console.log(error)
+    }
+  }
     return (
         <Box>
             <Modal open={Boolean(isCard)} onClose={() => dispatch(closeCardModal(null))}>

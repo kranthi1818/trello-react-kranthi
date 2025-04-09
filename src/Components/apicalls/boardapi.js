@@ -1,4 +1,4 @@
-// src/api/boardApi.js
+
 import axios from "axios"
 
 const APIKey = import.meta.env.VITE_APIkey

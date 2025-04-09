@@ -36,7 +36,7 @@ function Card({ listObj, handleDeleteCard }) {
                                 <Box size="small" color='white' height='20px'>
 
                                     <DeleteOutlineOutlinedIcon onClick={() => handleDeleteCard(card.id)}
-                                    
+
                                         sx={{ cursor: 'pointer', "&:hover": { color: 'red' } }} />
                                 </Box>
                             )}
@@ -46,8 +46,8 @@ function Card({ listObj, handleDeleteCard }) {
                 </Box>
             ))}
 
-            { isCard  &&  <AddChecklist/>  }
-          
+            {isCard && <AddChecklist />}
+
         </Box>
     )
 }
