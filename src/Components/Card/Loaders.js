@@ -59,12 +59,16 @@ export async function Loaders(boardId) {
     }
   }
 
-  const [board, lists, cards] = await Promise.all([getBoard(), getLists(), loaders()]);
+  const results = await Promise.all([getBoard(), getLists(), loaders()])
+
+  const board = results[0]
+  const lists = results[1]
+  const cards = results[2]
 
   return {
     board: board,
     lists: lists,
-    cards: cards
-  };
+    cards: cards,
+  }
   
 }
