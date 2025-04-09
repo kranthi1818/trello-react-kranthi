@@ -7,25 +7,27 @@ import {
 } from '@mui/material'
 
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useState } from 'react'
 import axios from 'axios'
 import CheckList from './CheckList'
 
+import { useDispatch, useSelector } from 'react-redux'
+import {
+    setCheckList, setCheckItems, updateCheckLists,
+    deleteCheckList, addCheckItemGroup, 
+} from '../slices/checklistsCheckItemsSlice'
 
-import { addChecklistReducer } from '../reducers/reducer'
+import { closeCardModal } from '../slices/cardSlice'
 
-function AddChecklist({ state, dispatch }) {
-    const { isCard} = state
 
-    const initialState = {
-        checklists: [],
-        listInputValue: '',
-        checkItems: {}
-    }
+function AddChecklist() {
 
-    const [localState, localDispatch] = useReducer(addChecklistReducer, initialState)
+    const[inputValue,setInputValue] = useState('')
 
-    const { checklists, listInputValue, checkItems } = localState
+    const {isCard} = useSelector((state) => state.card)
+
+    const dispatch = useDispatch()
+
 
     const APIKey = import.meta.env.VITE_APIkey
     const APIToken = import.meta.env.VITE_APItoken
@@ -40,8 +42,8 @@ function AddChecklist({ state, dispatch }) {
 
                 const checklistData = response.data
 
-                localDispatch({ type: 'SET_CHECKLIST', payload: checklistData });
-                localDispatch({ type: 'SET_CHECKITEMS', payload: checklistData });
+                dispatch(setCheckList(checklistData));
+                dispatch(setCheckItems(checklistData));
 
             } catch (error) {
                 console.log(error)
@@ -65,11 +67,11 @@ function AddChecklist({ state, dispatch }) {
                 })
             const newChecklist = response.data
 
-            localDispatch({ type: 'UPDATE_CHECKLIST', payload: newChecklist })
+            dispatch(updateCheckLists(newChecklist))
 
-            localDispatch({ type: 'ADD_CHECKITEM_GROUP', payload: newChecklist.id })
+            dispatch(addCheckItemGroup(newChecklist.id))
 
-            localDispatch({ type: 'SET_INPUTVALUE', payload: '' })
+            setInputValue('')
 
         } catch (error) {
             console.log(error)
@@ -84,7 +86,7 @@ function AddChecklist({ state, dispatch }) {
                     params: { key: APIKey, token: APIToken }
                 })
 
-            localDispatch({ type: 'DELETE_CHECKLIST', payload: checklistID })
+            dispatch(deleteCheckList(checklistID))
 
         } catch (error) {
             console.log(error)
@@ -93,7 +95,7 @@ function AddChecklist({ state, dispatch }) {
 
     return (
         <Box>
-            <Modal open={Boolean(isCard)} onClose={() => dispatch({ type: 'CLOSE_MODAL' })}>
+            <Modal open={Boolean(isCard)} onClose={() => dispatch(closeCardModal(null))}>
                 <Box sx={{
                     position: 'absolute',
                     top: '50%',
@@ -114,7 +116,8 @@ function AddChecklist({ state, dispatch }) {
 
                         <Typography sx={{ marginLeft: '1rem', fontSize: '1.4rem' }} variant="h6">{isCard.name}</Typography>
 
-                        <CloseOutlinedIcon onClick={() => dispatch({ type: 'CLOSE_MODAL' })}
+                        <CloseOutlinedIcon onClick={() => dispatch(closeCardModal(null))}
+
                             sx={{ cursor: 'pointer', marginRight: '2rem' }} />
                     </Box>
 
@@ -123,13 +126,13 @@ function AddChecklist({ state, dispatch }) {
                         <Box component='form'
                             onSubmit={(e) => {
                                 e.preventDefault()
-                                postCheckList(isCard.id, listInputValue)
+                                postCheckList(isCard.id, inputValue)
                             }}
                             sx={{ display: 'flex', gap: 1 }}
                         >
                             <TextField
-                                value={listInputValue}
-                                onChange={e => localDispatch({ type: 'SET_INPUTVALUE', payload: e.target.value })}
+                                value={inputValue}
+                                onChange={e => setInputValue(e.target.value)}
                                 fullWidth
                                 variant="outlined"
                                 placeholder="Enter Checklist Name..."
@@ -159,12 +162,7 @@ function AddChecklist({ state, dispatch }) {
                         pr: 1,
                         mt: 2
                     }}>
-                        <CheckList
-                            checkItems={checkItems}
-                            checklists={checklists}
-                            isCard={isCard}
-                            deleteChecklist={deleteChecklist}
-                            dispatch={localDispatch}
+                        <CheckList deleteChecklist={deleteChecklist}
                         />
                     </Box>
                 </Box>

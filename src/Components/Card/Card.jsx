@@ -1,35 +1,30 @@
 
 import { Box, Typography } from '@mui/material'
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import { useReducer } from 'react';
 import AddChecklist from '../checklist/AddChecklist';
 
-import { cardReducer } from '../reducers/reducer';
+import { useSelector, useDispatch } from 'react-redux';
+import { setHoverId, setSelectedCard } from '../slices/cardSlice'
+
 
 function Card({ listObj, handleDeleteCard }) {
-    const initialstate =
-    {
-        hoveredId: null,
-        isCard: null,
-    }
-    const [state, dispatch] = useReducer(cardReducer, initialstate)
 
-    const { hoveredId, isCard } = state
-
+    const dispatch = useDispatch()
+    const { hoveredId, isCard } = useSelector((state) => state.card)
 
     return (
         <Box>
             {listObj.cards.map(card => (
 
                 <Box key={card.id}
-                    onMouseEnter={() => dispatch({ type: 'SET_HOVERED_ID', payload: card.id })}
+                    onMouseEnter={() => dispatch(setHoverId(card.id))}
 
-                    onMouseLeave={() => dispatch({ type: 'SET_HOVERED_ID', payload: null })}
+                    onMouseLeave={() => dispatch(setHoverId(null))}
 
                     sx={{ p: 1, bgcolor: "#333", borderRadius: 2, mt: 1, display: 'flex', justifyContent: 'space-between' }}>
 
                     <Box sx={{ width: '100%', height: '20px' }}
-                        onClick={() => dispatch({ type: 'SET_SELECTED_CARD', payload: card })}
+                        onClick={() => dispatch(setSelectedCard(card))}
 
                     >
                         <Typography color='white'>{card.name}</Typography>
@@ -39,7 +34,9 @@ function Card({ listObj, handleDeleteCard }) {
                         <Box>
                             {hoveredId == card.id && (
                                 <Box size="small" color='white' height='20px'>
+
                                     <DeleteOutlineOutlinedIcon onClick={() => handleDeleteCard(card.id)}
+                                    
                                         sx={{ cursor: 'pointer', "&:hover": { color: 'red' } }} />
                                 </Box>
                             )}
@@ -49,14 +46,13 @@ function Card({ listObj, handleDeleteCard }) {
                 </Box>
             ))}
 
-            {isCard &&
-                <AddChecklist
-                state={state}
-                dispatch={dispatch} />
-            }
+            { isCard  &&  <AddChecklist/>  }
+          
         </Box>
     )
 }
 
 export default Card
+
+
 

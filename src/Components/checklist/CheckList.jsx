@@ -2,13 +2,13 @@
 
 import { Box, Typography, LinearProgress, Button } from "@mui/material"
 import CheckItem from "../Checkitems/CheckItem"
+import { useSelector } from "react-redux"
 
-function CheckList({ checklists,
-    checkItems,
-    dispatch,
-    isCard,
-    deleteChecklist
-}) {
+function CheckList({ deleteChecklist }) {
+
+    const { isCard } = useSelector((state) => state.card)
+    const { checklists, checkItems } = useSelector((state) => state.checkListItem)
+
 
     function calculateProgress(checkItems) {
         if (checkItems.length === 0) return 0;
@@ -81,10 +81,9 @@ function CheckList({ checklists,
                             }}
                         />
                     </Box>
-                    
+
                     <Box sx={{ mt: 2 }}>
                         <CheckItem
-                            dispatch={dispatch}
                             isCardId={isCard.id}
                             checkItems={checkItems[item.id]}
                             checklistId={item.id}

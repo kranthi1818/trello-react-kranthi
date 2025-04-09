@@ -10,6 +10,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import Button from '@mui/material/Button'
 
 
+import { useDispatch } from 'react-redux';
+import { addToggleModal } from '../slices/boardSlice';
+
+
+
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -52,7 +57,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function NavBar({addToBoard}) {
+export default function NavBar() {
+
+  const dispatch = useDispatch();
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ backgroundColor: 'transparent', minHeight: '10vh' }}>
@@ -76,7 +84,7 @@ export default function NavBar({addToBoard}) {
               inputProps={{ 'aria-label': 'search' }}
             />
           </Search>
-          <Button variant="contained" onClick={addToBoard} sx={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>Create</Button>
+          <Button variant="contained" onClick={()=>dispatch(addToggleModal(true))} sx={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>Create</Button>
          </Box>
         </Toolbar>
       </AppBar>

@@ -3,20 +3,25 @@ import { Box, IconButton, Typography, TextField, Stack, Button } from '@mui/mate
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setIsLoading } from '../slices/listSlice';
 
-function AddList({ isLoading, dispatch, postLists }) {
+function AddList({ isLoading, postLists }) {
 
     const [inputValue, setInputValue] = useState('')
+    
+    const dispatch = useDispatch()
 
     function addingToLists() {
         if (!inputValue.trim()) return
 
         postLists(inputValue)
-        dispatch({type:'SET_ISLOADING',payload:false})
+        dispatch(setIsLoading(false))
         setInputValue('')
     }
+
     function handleCloseAddList() {
-        dispatch({ type: 'SET_ISLOADING', payload: false })
+        dispatch(setIsLoading(false))
         setInputValue('')
     }
 
@@ -71,7 +76,7 @@ function AddList({ isLoading, dispatch, postLists }) {
                 </Box>
             ) : (
                 <Box onClick={() => {
-                    dispatch({ type: 'SET_ISLOADING', payload: true })
+                    dispatch(setIsLoading(true))
                 }}
                     sx={{
                         display: "flex",

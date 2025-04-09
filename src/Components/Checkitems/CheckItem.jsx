@@ -3,10 +3,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useState } from 'react';
 import axios from 'axios';
 
+import { useDispatch } from 'react-redux';
+import { addCheckItem ,deleteCheckItem as deleteSingleCheckItem,toggleCheckItem as toggleSingleCheckItem} from '../slices/checklistsCheckItemsSlice';
 
-function CheckItem({ checkItems, isCardId, checklistId, dispatch }) {
+function CheckItem({ checkItems, isCardId, checklistId }) {
 
     const [checkItemInput, setCheckItemInput] = useState('')
+
+    const dispatch = useDispatch()
+
 
     const APIKey = import.meta.env.VITE_APIkey
     const APIToken = import.meta.env.VITE_APItoken
@@ -18,10 +23,11 @@ function CheckItem({ checkItems, isCardId, checklistId, dispatch }) {
                 null,
                 { params: { name: checkItemName, key: APIKey, token: APIToken } }
             );
-            
+
             const newItem = response.data;
 
-            dispatch({ type: 'ADD_CHECK_ITEM', payload: { checklistId, checkItem: newItem } });
+            dispatch(addCheckItem({ checklistId, checkItem: newItem }))
+
             setCheckItemInput('');
 
         } catch (error) {
@@ -33,19 +39,14 @@ function CheckItem({ checkItems, isCardId, checklistId, dispatch }) {
     async function deleteCheckItem(checkItemId, cardId, checklistId) {
         try {
             await axios.delete(`https://api.trello.com/1/cards/${cardId}/checkItem/${checkItemId}`,
-                { params: { key: APIKey, token: APIToken } } )
+                { params: { key: APIKey, token: APIToken } })
 
-            dispatch({
-                type: 'DELETE_CHECK_ITEM',
-                payload: {
-                    checklistId,checkItemId
-                }
-            });
+            dispatch(deleteSingleCheckItem({ checklistId, checkItemId }))
+
         } catch (error) {
             console.log(error);
         }
     }
-
 
     async function toggleCheckItem(itemId, currentState) {
 
@@ -57,21 +58,21 @@ function CheckItem({ checkItems, isCardId, checklistId, dispatch }) {
 
             )
 
-            dispatch({type: 'TOGGLE_CHECK_ITEM', payload: {checklistId, checkItemId: itemId, currentState}})
-            
+            dispatch(toggleSingleCheckItem({ checklistId, checkItemId: itemId, currentState }))
+
         } catch (error) {
             console.error('Error updating checkItem state:', error)
         }
     }
-    
+
     return (
         <Box>
             <Box>
                 {checkItems.map((item) => (
                     <Box key={item.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginLeft: 3, marginRight: 3 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Checkbox color="success" onChange={() => toggleCheckItem(item.id, item.state)} 
-                            checked={item.state === 'complete'} />
+                            <Checkbox color="success" onChange={() => toggleCheckItem(item.id, item.state)}
+                                checked={item.state === 'complete'} />
                             <Box>{item.name}</Box>
                         </Box>
                         <DeleteIcon

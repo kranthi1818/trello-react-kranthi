@@ -1,80 +1,57 @@
 
-import React, { useEffect, useReducer } from 'react';
-import axios from 'axios';
-import NavBar from './NavBar';
-import Board from './Board';
-import CreateBoard from './CreateBoard';
+import React, { useEffect } from 'react'
+import axios from 'axios'
+import { fetchBoards,createBoard } from '../apicalls/boardapi'
+import NavBar from './NavBar'
+import Board from './Board'
+import CreateBoard from './CreateBoard'
 
 import {
     Box,
     CardContent,
     Typography,
     CssBaseline
-} from "@mui/material";
+} from "@mui/material"
 
-import AddIcon from "@mui/icons-material/Add";
+import AddIcon from "@mui/icons-material/Add"
 
-import { boardReducer } from '../reducers/reducer';
-
-const initialState = {
-    name: [],
-    isAdding: false
-};
+import { useSelector, useDispatch } from 'react-redux'
+import { setBoards, addBoards, addToggleModal } from '../slices/boardSlice'
 
 function Home() {
 
-    const [state, dispatch] = useReducer(boardReducer, initialState);
+    const dispatch = useDispatch()
 
-    const APIKey = import.meta.env.VITE_APIkey;
-    const APIToken = import.meta.env.VITE_APItoken;
+    const boards = useSelector((state) => state.board.name)
+
+    const APIKey = import.meta.env.VITE_APIkey
+    const APIToken = import.meta.env.VITE_APItoken
 
     useEffect(() => {
         async function getBoards() {
             try {
-                const response = await axios.get(
-                    'https://api.trello.com/1/members/me/boards',
-                    {
-                        params: {
-                            key: APIKey,
-                            token: APIToken
-                        }
-                    }
-                );
-
-                dispatch({ type: 'SET_BOARDS', payload: response.data });
-
+                const data = await fetchBoards();
+                dispatch(setBoards(data));
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error fetching boards:", error);
             }
         }
-
         getBoards();
     }, []);
 
-    async function postBoards(boardsName) {
+    async function postBoards(boardName) {
         try {
-            const response = await axios.post('https://api.trello.com/1/boards/',
-                {
-                    name: boardsName
-                },
-                {
-                    params: {
-                        key: APIKey, 
-                        token: APIToken
-                    }
-                }
-            );
-
-            dispatch({ type: 'ADD_BOARD', payload: { id: response.data.id, name: response.data.name } });
-
+            const newBoard = await createBoard(boardName);
+            dispatch(addBoards({ id: newBoard.id, name: newBoard.name }));
         } catch (error) {
-
-            console.log("Error posting data:", error);
+            console.log("Error creating board:", error);
         }
     }
 
     function addToBoard() {
-        dispatch({ type: 'TOGGLE_ADD_MODAL', payload: true });
+
+        dispatch(addToggleModal(true))
+        console.log('clicked')
     }
 
     return (
@@ -83,40 +60,37 @@ function Home() {
 
             <Box sx={{ backgroundColor: '#1D2125', height: "100vh", minWidth: "100vw", overflowX: "auto", overflowY: "auto" }}>
 
-                <NavBar addToBoard={addToBoard} />
-
+                {/* navbar componenet */}
+                <NavBar />
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
 
-                    {state.name.map((items) => (
-
-                        <Board  prefs={items.prefs} key={items.id} items={items} sx={{ minWidth: '25rem'}} name={items.name} id={items.id} />
+                    {boards.map((items) => (
+                        <Board prefs={items.prefs} key={items.id} items={items} sx={{ minWidth: '25rem' }} name={items.name} id={items.id} />
                     ))}
 
-                    <Box
-                        onClick={addToBoard}
+                    <Box onClick={addToBoard}
 
                         sx={{ borderRadius: 1, marginTop: 10, marginLeft: 3, width: '15rem', height: '9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', bgcolor: '#333C43', '&:hover': { bgcolor: '#1A1E21' } }}
                     >
-                        <CardContent sx={{ display: 'flex', color: 'white', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
-
+                        <CardContent sx={{
+                            display: 'flex',
+                            color: 'white',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: 1
+                        }}>
                             <AddIcon />
-
                             <Typography variant="h6" align="center">Add To Boards</Typography>
-
                         </CardContent>
 
                     </Box>
-
                 </Box>
 
-                <CreateBoard
-                    isAdding={state.isAdding}
-                    setIsAdding={(value) => dispatch({ type: 'TOGGLE_ADD_MODAL', payload: value })}
-                    postBoards={postBoards}
-                />
+                <CreateBoard postBoards={postBoards}/>
+                
             </Box>
         </>
-    );
+    )
 }
 
-export default Home;
+export default Home

@@ -1,37 +1,38 @@
 
-import { useEffect, useReducer } from 'react'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+
 import AddList from '../AddList/AddList';
-import {Loaders} from '../Card/Loaders'
+import { Loaders } from '../Card/Loaders'
 import CardList from '../Card/CardList';
 import Card from '../Card/Card'
 
 import axios from 'axios'
 
-import {
-  Stack,
-  Typography,
-  Box,
-  CssBaseline
-} from "@mui/material";
-
+import { Stack, Typography, Box, CssBaseline } from "@mui/material";
 import ArchiveIcon from '@mui/icons-material/Archive';
-import { listReducer } from '../reducers/reducer';
+
+import { useSelector, useDispatch } from 'react-redux';
+
+import {
+  setBoardName,
+  addList,
+  setCardId,
+  setIsLoading,
+  addCardsPerList,
+  postCardInList,
+  deletingSingleCard,
+  archiveSingleList
+} from '../slices/listSlice'
+
 
 
 function List() {
   const { boardId } = useParams()
 
-  const initialstate = {
-    board: null,
-    list: [],
-    isLoading: false,
-    openCardId: null
+  const { list, board, isLoading, openCardId } = useSelector((state) => state.list)
 
-  }
-  const [state, dispatch] = useReducer(listReducer, initialstate)
-
-  const { board, list, isLoading, openCardId } = state;
+  const dispatch = useDispatch()
 
   const APIKey = import.meta.env.VITE_APIkey
   const APIToken = import.meta.env.VITE_APItoken
@@ -40,13 +41,11 @@ function List() {
     async function fetchBoard() {
       try {
 
-        const { board, lists, cards } = await Loaders(boardId)
+        const { boards, lists, cards } = await Loaders(boardId)
 
-        dispatch({ type: 'SET_BOARD', payload: board })
+        dispatch(setBoardName(boards))
 
-        dispatch({
-          type: 'ADD_CARDS_PER_LIST', payload: { lists, cards }
-        })
+        dispatch(addCardsPerList({ lists, cards }))
 
       } catch (error) {
         console.log(error)
@@ -64,7 +63,7 @@ function List() {
           idBoard: boardId
         });
 
-      dispatch({ type: 'ADD_LIST', payload: { ...response.data, cards: [] } })
+      dispatch(addList({ ...response.data, cards: [] }))
 
     } catch (error) {
       console.log(error)
@@ -83,7 +82,7 @@ function List() {
 
       const newCard = response.data;
 
-      dispatch({ type: 'POST_CARD_IN_LIST', payload: { listID, newCard } });
+      dispatch(postCardInList({ listID, newCard }))
 
     } catch (error) {
       console.log('Error creating card:', error)
@@ -101,8 +100,7 @@ function List() {
           }
         }
       )
-
-      dispatch({ type: 'DELETE_CARD', payload: cardId })
+      dispatch(deletingSingleCard(cardId))
 
     } catch (error) {
       console.log(error)
@@ -124,8 +122,8 @@ function List() {
       );
       const updatedID = response.data.id
 
-      dispatch({ type: 'ARCHIVE_LIST', payload: updatedID })
-      
+      dispatch(archiveSingleList(updatedID))
+
     } catch (error) {
       console.log(error)
     }
@@ -149,7 +147,9 @@ function List() {
         <Box sx={{ display: "flex", gap: 1, alignSelf: "flex-start" }}>
 
           <Stack spacing={1} alignItems="flex-start" direction="row" sx={{ display: 'flex', p: 1 }}>
+
             {list.filter((item) => !item.closed).map((item) => (
+
               <Box
                 key={item.id}
                 sx={{
@@ -162,25 +162,33 @@ function List() {
                 }}
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', color: 'white' }}>
+
                   <Typography variant="body1">{item.name}</Typography>
+
                   <ArchiveIcon onClick={() => archiveList(item.id)} sx={{ cursor: 'pointer', "&:hover": { color: 'red' } }} />
                 </Box>
 
                 <Card listObj={item} handleDeleteCard={deleteCard} />
-                <CardList postCard={postCard} listID={item.id}
-                  isOpen={openCardId === item.id}
-                  onOpen={() => {
 
-                    dispatch({ type: 'SET_CARD_ID', payload: item.id })
-                    dispatch({ type: 'SET_ISLOADING', payload: false })
+                <CardList postCard={postCard} listID={item.id}
+
+                  isOpen={openCardId === item.id}
+
+                  onOpen={() => {
+                    dispatch(setCardId(item.id))
+                    dispatch(setIsLoading(false))
 
                   }}
-                  onClose={() => dispatch({ type: 'SET_CARD_ID', payload: null })}
+                  onClose={() => dispatch(setCardId(null))}
                 />
+                
               </Box>
+
             ))}
           </Stack>
-          <AddList setOpenCardId={openCardId} isLoading={isLoading} dispatch={dispatch} postLists={postLists} />
+
+          <AddList isLoading={isLoading} postLists={postLists} />
+
         </Box>
       </Box>
     </>
