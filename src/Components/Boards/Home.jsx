@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
-
+import { fetchingAllBoards,postingSingleBoard } from '../apicalls/boardapi';
 import { boardReducer } from '../reducers/reducer';
 
 const initialState = {
@@ -25,56 +25,31 @@ function Home() {
 
     const [state, dispatch] = useReducer(boardReducer, initialState);
 
-    const APIKey = import.meta.env.VITE_APIkey;
-    const APIToken = import.meta.env.VITE_APItoken;
-
+   
     useEffect(() => {
         async function getBoards() {
             try {
-                const response = await axios.get(
-                    'https://api.trello.com/1/members/me/boards',
-                    {
-                        params: {
-                            key: APIKey,
-                            token: APIToken
-                        }
-                    }
-                );
-
-                dispatch({ type: 'SET_BOARDS', payload: response.data });
-
+                const response = await fetchingAllBoards();
+                dispatch({ type: 'SET_BOARDS', payload: response });
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         }
 
-        getBoards();
-    }, []);
+        getBoards()
+    }, [])
 
     async function postBoards(boardsName) {
         try {
-            const response = await axios.post('https://api.trello.com/1/boards/',
-                {
-                    name: boardsName
-                },
-                {
-                    params: {
-                        key: APIKey, 
-                        token: APIToken
-                    }
-                }
-            );
-
-            dispatch({ type: 'ADD_BOARD', payload: { id: response.data.id, name: response.data.name } });
-
+            const response = await postingSingleBoard(boardsName)
+            dispatch({ type: 'ADD_BOARD', payload: { id: response.id, name: response.name } })
         } catch (error) {
-
-            console.log("Error posting data:", error);
+            console.log("Error posting data:", error)
         }
     }
 
     function addToBoard() {
-        dispatch({ type: 'TOGGLE_ADD_MODAL', payload: true });
+        dispatch({ type: 'TOGGLE_ADD_MODAL', payload: true })
     }
 
     return (
@@ -89,7 +64,7 @@ function Home() {
 
                     {state.name.map((items) => (
 
-                        <Board  prefs={items.prefs} key={items.id} items={items} sx={{ minWidth: '25rem'}} name={items.name} id={items.id} />
+                        <Board prefs={items.prefs} key={items.id} items={items} sx={{ minWidth: '25rem' }} name={items.name} id={items.id} />
                     ))}
 
                     <Box
@@ -116,7 +91,7 @@ function Home() {
                 />
             </Box>
         </>
-    );
+    )
 }
 
-export default Home;
+export default Home

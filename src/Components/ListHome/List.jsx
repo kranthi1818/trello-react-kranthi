@@ -6,8 +6,6 @@ import {Loaders} from '../Card/Loaders'
 import CardList from '../Card/CardList';
 import Card from '../Card/Card'
 
-import axios from 'axios'
-
 import {
   Stack,
   Typography,
@@ -17,6 +15,12 @@ import {
 
 import ArchiveIcon from '@mui/icons-material/Archive';
 import { listReducer } from '../reducers/reducer';
+import {
+  createNewList,
+  createNewCard,
+  removeCard,
+  closeListById
+} from '../apicalls/listapi'
 
 
 function List() {
@@ -33,8 +37,6 @@ function List() {
 
   const { board, list, isLoading, openCardId } = state;
 
-  const APIKey = import.meta.env.VITE_APIkey
-  const APIToken = import.meta.env.VITE_APItoken
 
   useEffect(() => {
     async function fetchBoard() {
@@ -58,78 +60,40 @@ function List() {
 
   async function postLists(listName) {
     try {
-      const response = await axios.post(`https://api.trello.com/1/lists?key=${APIKey}&token=${APIToken}`,
-        {
-          name: listName,
-          idBoard: boardId
-        });
-
-      dispatch({ type: 'ADD_LIST', payload: { ...response.data, cards: [] } })
-
+      const response = await createNewList(listName, boardId);
+      dispatch({ type: 'ADD_LIST', payload: { ...response, cards: [] } });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
-
+  
   async function postCard(cardName, listID) {
     try {
-      const response = await axios.post(
-        `https://api.trello.com/1/cards?key=${APIKey}&token=${APIToken}`,
-        {
-          name: cardName,
-          idList: listID
-        }
-      );
-
-      const newCard = response.data;
-
+      const newCard = await createNewCard(cardName, listID);
       dispatch({ type: 'POST_CARD_IN_LIST', payload: { listID, newCard } });
-
     } catch (error) {
-      console.log('Error creating card:', error)
+      console.log('Error creating card:', error);
     }
   }
-
+  
   async function deleteCard(cardId) {
     try {
-      await axios.delete(
-        `https://api.trello.com/1/cards/${cardId}`,
-        {
-          params: {
-            key: APIKey,
-            token: APIToken
-          }
-        }
-      )
-
-      dispatch({ type: 'DELETE_CARD', payload: cardId })
-
+      await removeCard(cardId);
+      dispatch({ type: 'DELETE_CARD', payload: cardId });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
   async function archiveList(listID) {
-
     try {
-      const response = await axios.put(
-        `https://api.trello.com/1/lists/${listID}/closed`,
-        { value: true },
-        {
-          params: {
-            key: APIKey,
-            token: APIToken
-          }
-        }
-      );
-      const updatedID = response.data.id
-
-      dispatch({ type: 'ARCHIVE_LIST', payload: updatedID })
-      
+      const updatedID = await closeListById(listID);
+      dispatch({ type: 'ARCHIVE_LIST', payload: updatedID });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
+  
 
   return (
     <>
